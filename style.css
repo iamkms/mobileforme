@@ -300,3 +300,26 @@
     gap: 8px;
   }
 }
+
+#mfm_overlay .mfm-phone {
+  resize: both;
+  min-width: 320px;
+  min-height: 560px;
+}
+
+.mfm-setting .mfm-row {
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.mfm-setting .mfm-row input,
+.mfm-setting .mfm-row button {
+  flex: 1 1 130px;
+}
+
+@media (max-width: 520px), (pointer: coarse) {
+  #mfm_overlay .mfm-phone {
+    resize: vertical;
+    min-width: 100vw;
+  }
+}
