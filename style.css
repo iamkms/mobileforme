@@ -1,0 +1,325 @@
+:root {
+  --mfm-phone-bg: #eef3ff;
+  --mfm-wallpaper-a: #9ec8ff;
+  --mfm-wallpaper-b: #f7b6d2;
+  --mfm-wallpaper-c: #b8a7ff;
+  --mfm-glass: rgba(255, 255, 255, 0.68);
+  --mfm-glass-strong: rgba(255, 255, 255, 0.86);
+  --mfm-card-bg: rgba(255, 255, 255, 0.78);
+  --mfm-text: #101828;
+  --mfm-muted: #667085;
+  --mfm-accent: #007aff;
+  --mfm-shadow: 0 18px 45px rgba(28, 39, 76, 0.22);
+}
+
+#mobileforme_panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  color: var(--mfm-text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+}
+
+.mfm-phone {
+  position: relative;
+  max-width: 430px;
+  min-height: 720px;
+  margin: 0 auto;
+  padding: 14px 16px 24px;
+  border: 10px solid #111318;
+  border-radius: 48px;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255,255,255,.92), transparent 24%),
+    radial-gradient(circle at 82% 8%, var(--mfm-wallpaper-b), transparent 32%),
+    linear-gradient(145deg, var(--mfm-wallpaper-a), var(--mfm-wallpaper-c) 52%, #f7fbff);
+  box-shadow: var(--mfm-shadow), inset 0 0 0 1px rgba(255,255,255,.45);
+  overflow: hidden;
+}
+
+.mfm-phone::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 118px;
+  height: 34px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #07080b;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+  z-index: 2;
+}
+
+.mfm-phone::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  width: 132px;
+  height: 5px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: rgba(10, 15, 25, 0.86);
+  z-index: 2;
+}
+
+.mfm-statusbar,
+.mfm-toolbar,
+.mfm-row {
+  display: flex;
+  align-items: center;
+}
+
+.mfm-statusbar {
+  position: relative;
+  z-index: 3;
+  justify-content: space-between;
+  padding: 4px 18px 24px;
+  font-weight: 700;
+  font-size: 0.86rem;
+  letter-spacing: -0.01em;
+}
+
+.mfm-toolbar {
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255,255,255,.54);
+  border-radius: 24px;
+  background: var(--mfm-glass);
+  -webkit-backdrop-filter: blur(22px) saturate(1.25);
+  backdrop-filter: blur(22px) saturate(1.25);
+  box-shadow: 0 10px 30px rgba(37, 56, 110, 0.14);
+}
+
+.mfm-toolbar b {
+  font-size: 1.35rem;
+  letter-spacing: -0.04em;
+}
+
+.mfm-app-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px 12px;
+  margin: 18px 0 16px;
+}
+
+.mfm-app-button {
+  cursor: pointer;
+  text-align: center;
+  color: var(--mfm-text);
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-shadow: 0 1px 8px rgba(255,255,255,.65);
+}
+
+.mfm-app-button:hover .mfm-app-icon,
+.mfm-app-button:focus-visible .mfm-app-icon {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 12px 26px rgba(0,122,255,.28);
+}
+
+.mfm-app-icon {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 6px;
+  border-radius: 15px;
+  background: linear-gradient(145deg, rgba(255,255,255,.94), rgba(255,255,255,.54));
+  box-shadow: 0 10px 22px rgba(31, 47, 92, 0.2), inset 0 1px 0 rgba(255,255,255,.75);
+  font-size: 1.65rem;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+
+.mfm-content {
+  min-height: 360px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.52);
+  border-radius: 28px;
+  background: rgba(246, 248, 255, 0.58);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  backdrop-filter: blur(18px) saturate(1.2);
+}
+
+.mfm-card,
+.mfm-setting {
+  border: 1px solid rgba(255,255,255,.7);
+  border-radius: 20px;
+  background: var(--mfm-card-bg);
+  padding: 12px;
+  box-shadow: 0 8px 24px rgba(24, 39, 75, 0.12);
+}
+
+.mfm-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 360px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.mfm-muted { color: var(--mfm-muted); }
+.mfm-accent { color: var(--mfm-accent); }
+.mfm-row { justify-content: space-between; gap: 8px; }
+.mfm-full { width: 100%; }
+
+#mobileforme_panel button:not(.mfm-app-button) {
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--mfm-accent);
+  padding: 8px 13px;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(0,122,255,.24);
+}
+
+#mobileforme_panel textarea,
+#mobileforme_panel input,
+#mobileforme_panel select {
+  width: 100%;
+  color: var(--mfm-text);
+  background: var(--mfm-glass-strong);
+  border: 1px solid rgba(16,24,40,.12);
+  border-radius: 14px;
+  padding: 10px;
+  margin: 6px 0;
+  box-sizing: border-box;
+}
+
+#mfm_launcher {
+  position: fixed;
+  z-index: 4999;
+  width: 58px;
+  height: 58px;
+  border: 0;
+  border-radius: 18px;
+  color: #fff;
+  background: linear-gradient(145deg, #59a7ff, #007aff 58%, #5856d6);
+  box-shadow: 0 14px 34px rgba(0, 122, 255, 0.36);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+#mfm_launcher:active {
+  cursor: grabbing;
+  transform: scale(.96);
+}
+
+#mfm_launcher span {
+  display: grid;
+  place-items: center;
+  font-size: 1.7rem;
+}
+
+#mfm_overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 4998;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+}
+
+#mfm_overlay.mfm-open {
+  display: flex;
+}
+
+.mfm-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 10, 18, 0.42);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+#mfm_overlay .mfm-phone {
+  z-index: 1;
+  width: min(430px, calc(100vw - 24px));
+  max-height: calc(100dvh - 28px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mfm-toolbar span {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+@media (max-width: 520px), (pointer: coarse) {
+  #mfm_launcher {
+    width: 62px;
+    height: 62px;
+    border-radius: 20px;
+  }
+
+  #mfm_overlay {
+    align-items: flex-end;
+    padding: env(safe-area-inset-top) 0 0;
+  }
+
+  #mfm_overlay .mfm-phone {
+    width: 100vw;
+    min-height: min(100dvh, 760px);
+    max-height: 100dvh;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: 38px 38px 0 0;
+  }
+
+  .mfm-app-grid {
+    grid-template-columns: repeat(4, minmax(64px, 1fr));
+    gap: 14px 8px;
+  }
+
+  .mfm-app-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .mfm-content {
+    min-height: 42dvh;
+  }
+}
+
+@media (max-width: 360px) {
+  .mfm-app-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .mfm-toolbar {
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+#mfm_overlay .mfm-phone {
+  resize: both;
+  min-width: 320px;
+  min-height: 560px;
+}
+
+.mfm-setting .mfm-row {
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.mfm-setting .mfm-row input,
+.mfm-setting .mfm-row button {
+  flex: 1 1 130px;
+}
+
+@media (max-width: 520px), (pointer: coarse) {
+  #mfm_overlay .mfm-phone {
+    resize: vertical;
+    min-width: 100vw;
+  }
+}
