@@ -8,6 +8,9 @@
     apiKey: '',
     modelName: '',
     availableModels: [],
+    provider: 'custom-openai',
+    maxTokens: 65536,
+    streamResponse: false,
     injectContext: true,
     activeAccount: 'personal',
     customCss: '',
@@ -167,7 +170,8 @@
   }
 
   function settingsView(settings) {
-    return `<div class="mfm-setting"><label>API Base URL<input id="mfm_api" value="${escapeHtml(settings.apiBaseUrl)}"></label><label>API 密鑰<input id="mfm_api_key" type="password" value="${escapeHtml(settings.apiKey)}" placeholder="Bearer token / 服務密鑰"></label><label>LLM 模型<select id="mfm_model"><option value="">未選擇</option>${(settings.availableModels || []).map((model) => `<option value="${escapeHtml(model)}" ${settings.modelName === model ? 'selected' : ''}>${escapeHtml(model)}</option>`).join('')}</select></label><div class="mfm-row"><button id="mfm_load_models">拉取模型列表</button><input id="mfm_pull_model_name" placeholder="模型名稱，例如 gpt-4.1-mini"><button id="mfm_pull_model">拉取模型</button></div><label><input id="mfm_inject" type="checkbox" ${settings.injectContext ? 'checked' : ''}> 注入正文上下文</label><label>手機寬度/高度<input id="mfm_phone_width" type="number" value="${Number(settings.phoneWidth) || 430}"><input id="mfm_phone_height" type="number" value="${Number(settings.phoneHeight) || 720}"></label><label>個性化 CSS<textarea id="mfm_css" rows="6">${escapeHtml(settings.customCss)}</textarea></label><button id="mfm_save">保存設定</button></div>`;
+    const models = (settings.availableModels || []).map((model) => `<option value="${escapeHtml(model)}"></option>`).join('');
+    return `<div class="mfm-setting"><h3>🔗 連接配置</h3><div class="mfm-config-grid"><label>服務商<select id="mfm_provider"><option value="custom-openai" ${settings.provider === 'custom-openai' ? 'selected' : ''}>自定義（兼容 OpenAI）</option><option value="openai" ${settings.provider === 'openai' ? 'selected' : ''}>OpenAI</option><option value="ollama" ${settings.provider === 'ollama' ? 'selected' : ''}>Ollama</option></select></label><label>Base URL<input id="mfm_api" value="${escapeHtml(settings.apiBaseUrl)}"></label><label>API Key<div class="mfm-secret"><input id="mfm_api_key" type="password" value="${escapeHtml(settings.apiKey)}" placeholder="Bearer token / 服務密鑰"><button id="mfm_toggle_key" type="button" aria-label="顯示或隱藏 API Key">👁️</button></div></label><label>模型名稱<div class="mfm-inline"><input id="mfm_model_name" list="mfm_model_options" value="${escapeHtml(settings.modelName)}" placeholder="例如 gcli-gemini-3.1-pro"><button id="mfm_load_models" type="button">☁️ 拉取模型列表</button></div><datalist id="mfm_model_options">${models}</datalist></label><label>Max Tokens<input id="mfm_max_tokens" type="number" min="1" value="${Number(settings.maxTokens) || 65536}"></label><label class="mfm-switch-row">流式響應<input id="mfm_stream" type="checkbox" ${settings.streamResponse ? 'checked' : ''}></label></div><div class="mfm-row"><button id="mfm_test_connection" type="button">🔌 測試連接</button><input id="mfm_pull_model_name" placeholder="模型名稱，例如 gpt-4.1-mini"><button id="mfm_pull_model" type="button">拉取模型</button></div><label><input id="mfm_inject" type="checkbox" ${settings.injectContext ? 'checked' : ''}> 注入正文上下文</label><label>手機寬度/高度<input id="mfm_phone_width" type="number" value="${Number(settings.phoneWidth) || 430}"><input id="mfm_phone_height" type="number" value="${Number(settings.phoneHeight) || 720}"></label><label>個性化 CSS<textarea id="mfm_css" rows="6">${escapeHtml(settings.customCss)}</textarea></label><button id="mfm_save">保存設定</button></div>`;
   }
 
   const feed = (items) => `<div class="mfm-feed">${items.map((x) => `<div class="mfm-card">${x}</div>`).join('') || '<div class="mfm-muted">暫無紀錄</div>'}</div>`;
@@ -195,10 +199,12 @@
     root.querySelector('#mfm_close')?.addEventListener('click', () => { phoneOpen = false; render(); });
     root.querySelector('[data-close]')?.addEventListener('click', () => { phoneOpen = false; render(); });
     root.querySelector('#mfm_toggle_account')?.addEventListener('click', () => { const s = extensionSettings(); s.activeAccount = s.activeAccount === 'work' ? 'personal' : 'work'; render(); });
-    root.querySelector('#mfm_save')?.addEventListener('click', () => { const s = extensionSettings(); s.apiBaseUrl = root.querySelector('#mfm_api').value; s.apiKey = root.querySelector('#mfm_api_key')?.value || ''; s.modelName = root.querySelector('#mfm_model')?.value || s.modelName; s.injectContext = root.querySelector('#mfm_inject').checked; s.phoneWidth = Number(root.querySelector('#mfm_phone_width')?.value) || 430; s.phoneHeight = Number(root.querySelector('#mfm_phone_height')?.value) || 720; s.customCss = root.querySelector('#mfm_css').value; render(); });
+    root.querySelector('#mfm_save')?.addEventListener('click', () => { syncConnectionForm(root); render(); });
     root.querySelector('#mfm_open_inspect')?.addEventListener('click', () => { const w = window.open('', 'mobileforme-inspect', 'width=520,height=760'); w.document.write(`<pre>${escapeHtml(contextSummary())}</pre>`); });
-    root.querySelector('#mfm_load_models')?.addEventListener('click', loadModels);
-    root.querySelector('#mfm_pull_model')?.addEventListener('click', pullModel);
+    root.querySelector('#mfm_load_models')?.addEventListener('click', () => loadModels(root));
+    root.querySelector('#mfm_pull_model')?.addEventListener('click', () => pullModel(root));
+    root.querySelector('#mfm_test_connection')?.addEventListener('click', () => testConnection(root));
+    root.querySelector('#mfm_toggle_key')?.addEventListener('click', () => { const input = root.querySelector('#mfm_api_key'); input.type = input.type === 'password' ? 'text' : 'password'; });
     root.querySelector('#mfm_send_message')?.addEventListener('click', sendMessage);
     root.querySelector('#mfm_transfer')?.addEventListener('click', async () => {
       const payload = { character: getCharacterName(), scope: getScopeKey(), to: root.querySelector('#mfm_transfer_to').value, amount: Number(root.querySelector('#mfm_transfer_amount').value), direction: 'out' };
@@ -212,21 +218,48 @@
     });
   }
 
-  async function loadModels() {
+  function syncConnectionForm(root = document) {
+    const settings = extensionSettings();
+    settings.provider = root.querySelector('#mfm_provider')?.value || settings.provider;
+    settings.apiBaseUrl = root.querySelector('#mfm_api')?.value || settings.apiBaseUrl;
+    settings.apiKey = root.querySelector('#mfm_api_key')?.value || '';
+    settings.modelName = root.querySelector('#mfm_model_name')?.value || settings.modelName;
+    settings.maxTokens = Number(root.querySelector('#mfm_max_tokens')?.value) || settings.maxTokens;
+    settings.streamResponse = Boolean(root.querySelector('#mfm_stream')?.checked);
+    settings.injectContext = root.querySelector('#mfm_inject')?.checked ?? settings.injectContext;
+    settings.phoneWidth = Number(root.querySelector('#mfm_phone_width')?.value) || settings.phoneWidth;
+    settings.phoneHeight = Number(root.querySelector('#mfm_phone_height')?.value) || settings.phoneHeight;
+    settings.customCss = root.querySelector('#mfm_css')?.value ?? settings.customCss;
+    return settings;
+  }
+
+  async function loadModels(root = document) {
+    syncConnectionForm(root);
     try {
       const result = await apiFetch('/models');
       const models = result.models || result.data?.map?.((item) => item.id || item.name) || [];
       const settings = extensionSettings();
       settings.availableModels = models.filter(Boolean);
       if (!settings.modelName && settings.availableModels[0]) settings.modelName = settings.availableModels[0];
-      toast('已拉取可用 LLM 模型', 'success');
+      toast(`已拉取 ${settings.availableModels.length} 個可用 LLM 模型`, 'success');
       render();
     } catch (error) {
       toast(`拉取模型列表失敗：${error.message}`, 'error');
     }
   }
 
-  async function pullModel() {
+  async function testConnection(root = document) {
+    syncConnectionForm(root);
+    try {
+      await apiFetch('/health');
+      toast('獨立 API 連接成功', 'success');
+    } catch (error) {
+      toast(`連接測試失敗：${error.message}`, 'error');
+    }
+  }
+
+  async function pullModel(root = document) {
+    syncConnectionForm(root);
     const input = document.getElementById('mfm_pull_model_name');
     const model = input?.value?.trim();
     if (!model) return toast('請輸入要拉取的模型名稱', 'warning');
