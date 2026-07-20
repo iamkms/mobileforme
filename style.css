@@ -190,3 +190,113 @@
   margin: 6px 0;
   box-sizing: border-box;
 }
+
+#mfm_launcher {
+  position: fixed;
+  z-index: 4999;
+  width: 58px;
+  height: 58px;
+  border: 0;
+  border-radius: 18px;
+  color: #fff;
+  background: linear-gradient(145deg, #59a7ff, #007aff 58%, #5856d6);
+  box-shadow: 0 14px 34px rgba(0, 122, 255, 0.36);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+#mfm_launcher:active {
+  cursor: grabbing;
+  transform: scale(.96);
+}
+
+#mfm_launcher span {
+  display: grid;
+  place-items: center;
+  font-size: 1.7rem;
+}
+
+#mfm_overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 4998;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+}
+
+#mfm_overlay.mfm-open {
+  display: flex;
+}
+
+.mfm-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 10, 18, 0.42);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+#mfm_overlay .mfm-phone {
+  z-index: 1;
+  width: min(430px, calc(100vw - 24px));
+  max-height: calc(100dvh - 28px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mfm-toolbar span {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+@media (max-width: 520px), (pointer: coarse) {
+  #mfm_launcher {
+    width: 62px;
+    height: 62px;
+    border-radius: 20px;
+  }
+
+  #mfm_overlay {
+    align-items: flex-end;
+    padding: env(safe-area-inset-top) 0 0;
+  }
+
+  #mfm_overlay .mfm-phone {
+    width: 100vw;
+    min-height: min(100dvh, 760px);
+    max-height: 100dvh;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: 38px 38px 0 0;
+  }
+
+  .mfm-app-grid {
+    grid-template-columns: repeat(4, minmax(64px, 1fr));
+    gap: 14px 8px;
+  }
+
+  .mfm-app-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .mfm-content {
+    min-height: 42dvh;
+  }
+}
+
+@media (max-width: 360px) {
+  .mfm-app-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .mfm-toolbar {
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

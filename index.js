@@ -8,6 +8,8 @@
     injectContext: true,
     activeAccount: 'personal',
     customCss: '',
+    launcherX: 24,
+    launcherY: 120,
   };
 
   const APP_DEFS = [
@@ -55,6 +57,7 @@
 
   let state = structuredCloneSafe(fallbackState);
   let currentApp = 'messages';
+  let phoneOpen = false;
 
   function structuredCloneSafe(value) {
     return JSON.parse(JSON.stringify(value));
@@ -150,15 +153,19 @@
     if (!root) {
       root = document.createElement('div');
       root.id = 'mobileforme_panel';
-      document.querySelector('#extensions_settings')?.append(root) || document.body.append(root);
+      document.body.append(root);
     }
-    root.innerHTML = `<div class="mfm-phone"><div class="mfm-statusbar"><span>${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span><span>📶 🔋</span></div><div class="mfm-toolbar"><b>MobileForMe</b><button id="mfm_refresh">同步</button></div><div class="mfm-app-grid">${APP_DEFS.map(([id, icon, label]) => `<button class="mfm-app-button" data-app="${id}"><span class="mfm-app-icon">${icon}</span>${label}</button>`).join('')}</div><div class="mfm-content">${renderAppContent()}</div></div><style id="mfm_custom_css">${extensionSettings().customCss}</style>`;
+    const settings = extensionSettings();
+    root.innerHTML = `<button id="mfm_launcher" aria-label="打開 MobileForMe 手機" style="left:${Number(settings.launcherX) || 24}px;top:${Number(settings.launcherY) || 120}px"><span>📱</span></button><div id="mfm_overlay" class="${phoneOpen ? 'mfm-open' : ''}" aria-hidden="${phoneOpen ? 'false' : 'true'}"><div class="mfm-backdrop" data-close="true"></div><div class="mfm-phone" role="dialog" aria-modal="true" aria-label="MobileForMe 手機"><div class="mfm-statusbar"><span>${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span><span>📶 🔋</span></div><div class="mfm-toolbar"><b>MobileForMe</b><span><button id="mfm_refresh">同步</button><button id="mfm_close" aria-label="關閉手機">關閉</button></span></div><div class="mfm-app-grid">${APP_DEFS.map(([id, icon, label]) => `<button class="mfm-app-button" data-app="${id}"><span class="mfm-app-icon">${icon}</span>${label}</button>`).join('')}</div><div class="mfm-content">${renderAppContent()}</div></div></div><style id="mfm_custom_css">${extensionSettings().customCss}</style>`;
     bindEvents(root);
   }
 
   function bindEvents(root) {
+    bindLauncher(root.querySelector('#mfm_launcher'));
     root.querySelectorAll('[data-app]').forEach((button) => button.addEventListener('click', () => { currentApp = button.dataset.app; render(); }));
     root.querySelector('#mfm_refresh')?.addEventListener('click', refreshState);
+    root.querySelector('#mfm_close')?.addEventListener('click', () => { phoneOpen = false; render(); });
+    root.querySelector('[data-close]')?.addEventListener('click', () => { phoneOpen = false; render(); });
     root.querySelector('#mfm_toggle_account')?.addEventListener('click', () => { const s = extensionSettings(); s.activeAccount = s.activeAccount === 'work' ? 'personal' : 'work'; render(); });
     root.querySelector('#mfm_save')?.addEventListener('click', () => { const s = extensionSettings(); s.apiBaseUrl = root.querySelector('#mfm_api').value; s.injectContext = root.querySelector('#mfm_inject').checked; s.customCss = root.querySelector('#mfm_css').value; render(); });
     root.querySelector('#mfm_open_inspect')?.addEventListener('click', () => { const w = window.open('', 'mobileforme-inspect', 'width=520,height=760'); w.document.write(`<pre>${escapeHtml(contextSummary())}</pre>`); });
@@ -166,6 +173,40 @@
       const payload = { character: getCharacterName(), to: root.querySelector('#mfm_transfer_to').value, amount: Number(root.querySelector('#mfm_transfer_amount').value) };
       try { await apiFetch('/transfer', { method: 'POST', body: JSON.stringify(payload) }); await refreshState(); }
       catch (error) { toast(`轉帳需要可用 API：${error.message}`, 'error'); }
+    });
+  }
+
+  function bindLauncher(button) {
+    if (!button) return;
+    let dragged = false;
+    let startX = 0;
+    let startY = 0;
+    let originX = 0;
+    let originY = 0;
+    button.addEventListener('pointerdown', (event) => {
+      dragged = false;
+      startX = event.clientX;
+      startY = event.clientY;
+      originX = button.offsetLeft;
+      originY = button.offsetTop;
+      button.setPointerCapture?.(event.pointerId);
+    });
+    button.addEventListener('pointermove', (event) => {
+      if (event.buttons !== 1) return;
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+      if (Math.abs(dx) + Math.abs(dy) > 6) dragged = true;
+      const nextX = Math.min(Math.max(8, originX + dx), window.innerWidth - button.offsetWidth - 8);
+      const nextY = Math.min(Math.max(8, originY + dy), window.innerHeight - button.offsetHeight - 8);
+      button.style.left = `${nextX}px`;
+      button.style.top = `${nextY}px`;
+    });
+    button.addEventListener('pointerup', () => {
+      const settings = extensionSettings();
+      settings.launcherX = button.offsetLeft;
+      settings.launcherY = button.offsetTop;
+      if (!dragged) phoneOpen = true;
+      render();
     });
   }
 
