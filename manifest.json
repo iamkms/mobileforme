@@ -1,0 +1,12 @@
+{
+  "display_name": "MobileForMe",
+  "loading_order": 100,
+  "requires": [],
+  "optional": [],
+  "js": "index.js",
+  "css": "style.css",
+  "author": "OpenAI Codex",
+  "version": "0.1.0",
+  "homePage": "https://github.com/your-org/mobileforme",
+  "auto_update": true
+}
